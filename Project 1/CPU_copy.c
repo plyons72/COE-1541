@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "CPU.h"
 
-char *stage_id_map(int i);
+char *stage_ID_map(int i);
 
 int main(int argc, char **argv)
 {
@@ -93,81 +93,82 @@ int main(int argc, char **argv)
         if (trace_view_on) {/* print the executed instruction if trace_view_on=1 */
             
             int i;
-            for(i = -4; i < -1; i--){
+            for(i = 0; i > -5; i--){
+                char *temp = stage_ID_map(i);
                 switch (i) {
-                    case 5:
-                        switch(tr_entry/*[i]*/->type) {
+                    case 0:
+                        switch(tr_entry[i].type) {
                             case ti_NOP:
-                                printf("[cycle %d] NOP:",cycle_number) ;
+                                printf("[cycle %d] NOP:\n",cycle_number) ;
                                 break;
                             case ti_RTYPE:
-                                printf("[cycle %d] [%s Stage] RTYPE:",cycle_number, stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->sReg_b, tr_entry[i]->dReg);
+                                printf("[cycle %d] [%s Stage] RTYPE:",cycle_number, temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].sReg_b, tr_entry[i].dReg);
                                 break;
                             case ti_ITYPE:
-                                printf("[cycle %d] [%s Stage] ITYPE:",cycle_number, stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->dReg, tr_entry[i]->Addr);
+                                printf("[cycle %d] [%s Stage] ITYPE:",cycle_number, temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].dReg, tr_entry[i].Addr);
                                 break;
                             case ti_LOAD:
-                                printf("[cycle %d] [%s Stage] LOAD:",cycle_number, stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->dReg, tr_entry[i]->Addr);
+                                printf("[cycle %d] [%s Stage] LOAD:",cycle_number, temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].dReg, tr_entry[i].Addr);
                                 break;
                             case ti_STORE:
-                                printf("[cycle %d] [%s Stage] STORE:",cycle_number, stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->sReg_b, tr_entry[i]->Addr);
+                                printf("[cycle %d] [%s Stage] STORE:",cycle_number, temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].sReg_b, tr_entry[i].Addr);
                                 break;
                             case ti_BRANCH:
-                                printf("[cycle %d] [%s Stage] BRANCH:",cycle_number, stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->sReg_b, tr_entry[i]->Addr);
+                                printf("[cycle %d] [%s Stage] BRANCH:",cycle_number, temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].sReg_b, tr_entry[i].Addr);
                                 break;
                             case ti_JTYPE:
-                                printf("[cycle %d] [%s Stage] JTYPE:",cycle_number, stage_ID_map(i)) ;
-                                printf(" (PC: %x)(addr: %x)\n", tr_entry[i]->PC,tr_entry[i]->Addr);
+                                printf("[cycle %d] [%s Stage] JTYPE:",cycle_number, temp) ;
+                                printf(" (PC: %x)(addr: %x)\n", tr_entry[i].PC,tr_entry[i].Addr);
                                 break;
                             case ti_SPECIAL:
-                                printf("[cycle %d] [%s Stage] SPECIAL:",cycle_number, stage_ID_map(i)) ;
+                                printf("[cycle %d] [%s Stage] SPECIAL:",cycle_number, temp) ;
                                 break;
                             case ti_JRTYPE:
-                                printf("[cycle %d] [%s Stage] JRTYPE:",cycle_number, stage_ID_map(i)) ;
-                                printf(" (PC: %x) (sReg_a: %d)(addr: %x)\n", tr_entry/*[i]*/->PC, tr_entry[i]->dReg, tr_entry[i]->Addr);
+                                printf("[cycle %d] [%s Stage] JRTYPE:",cycle_number, temp) ;
+                                printf(" (PC: %x) (sReg_a: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].dReg, tr_entry[i].Addr);
                                 break;
                         }
                         break;
                     default:
-                        switch(tr_entry[i]->type) {
+                        switch(tr_entry[i].type) {
                             case ti_NOP:
-                                printf("NOP:") ;
+                                printf("\t\tNOP:\n") ;
                                 break;
                             case ti_RTYPE:
-                                printf("\t[%s Stage] RTYPE:", stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->sReg_b, tr_entry[i]->dReg);
+                                printf("\t\t[%s Stage] RTYPE:", temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].sReg_b, tr_entry[i].dReg);
                                 break;
                             case ti_ITYPE:
-                                printf("\t[%s Stage] ITYPE:", stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->dReg, tr_entry[i]->Addr);
+                                printf("\t\t[%s Stage] ITYPE:", temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].dReg, tr_entry[i].Addr);
                                 break;
                             case ti_LOAD:
-                                printf("\t[%s Stage] LOAD:", stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->dReg, tr_entry[i]->Addr);
+                                printf("\t\t[%s Stage] LOAD:", temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].dReg, tr_entry[i].Addr);
                                 break;
                             case ti_STORE:
-                                printf("\t[%s Stage] STORE:", stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->sReg_b, tr_entry[i]->Addr);
+                                printf("\t\t[%s Stage] STORE:", temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].sReg_b, tr_entry[i].Addr);
                                 break;
                             case ti_BRANCH:
-                                printf("\t[%s Stage] BRANCH:", stage_ID_map(i)) ;
-                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->sReg_a, tr_entry[i]->sReg_b, tr_entry[i]->Addr);
+                                printf("\t\t[%s Stage] BRANCH:", temp) ;
+                                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].sReg_a, tr_entry[i].sReg_b, tr_entry[i].Addr);
                                 break;
                             case ti_JTYPE:
-                                printf("\t[%s Stage] JTYPE:", stage_ID_map(i)) ;
-                                printf(" (PC: %x)(addr: %x)\n", tr_entry[i]->PC,tr_entry[i]->Addr);
+                                printf("\t\t[%s Stage] JTYPE:", temp) ;
+                                printf(" (PC: %x)(addr: %x)\n", tr_entry[i].PC,tr_entry[i].Addr);
                                 break;
                             case ti_SPECIAL:
-                                printf("\t[%s Stage] SPECIAL:", stage_ID_map(i)) ;
+                                printf("\t\t[%s Stage] SPECIAL:", temp) ;
                                 break;
                             case ti_JRTYPE:
-                                printf("\t[%s Stage] RTYPE:", stage_ID_map(i)) ;
-                                printf(" (PC: %x) (sReg_a: %d)(addr: %x)\n", tr_entry[i]->PC, tr_entry[i]->dReg, tr_entry[i]->Addr);
+                                printf("\t\t[%s Stage] RTYPE:", temp) ;
+                                printf(" (PC: %x) (sReg_a: %d)(addr: %x)\n", tr_entry[i].PC, tr_entry[i].dReg, tr_entry[i].Addr);
                                 break;
                         }
                         break;
@@ -183,13 +184,13 @@ int main(int argc, char **argv)
 
 char *stage_ID_map(int i) {
     
-    if(i == 5) {
+    if(i == 0) {
         return "IF";
-    }else if(i == 4) {
+    }else if(i == -1) {
         return "ID";
-    }else if(i == 3) {
+    }else if(i == -2) {
         return "EX";
-    }else if(i == 2) {
+    }else if(i == -3) {
         return "MEM";
     }else {
         return "WB";
