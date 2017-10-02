@@ -14,6 +14,7 @@
 #include "CPU.h"
 
 char *stage_ID_map(int i);
+int checkPipeline(struct trace_item **item);
 
 int main(int argc, char **argv)
 {
@@ -74,7 +75,7 @@ int main(int argc, char **argv)
     while(1) { //Execute the trace program
         size = trace_get_item(&tr_entry); //get size of the trace program as well as the trace_item field
         
-        if (!size) {       /* no more instructions (trace_items) to simulate */
+        if (!size && checkPipeline(&tr_entry)) {       /* no more instructions (trace_items) to simulate */
             printf("+ Simulation terminates at cycle : %u\n", cycle_number);
             break;
         }
@@ -99,7 +100,7 @@ int main(int argc, char **argv)
                     case 0:
                         switch(tr_entry[i].type) {
                             case ti_NOP:
-                                printf("[cycle %d] NOP:\n",cycle_number) ;
+                                printf("[cycle %d] [%s Stage] NOP:\n",cycle_number, temp) ;
                                 break;
                             case ti_RTYPE:
                                 printf("[cycle %d] [%s Stage] RTYPE:",cycle_number, temp) ;
@@ -137,7 +138,7 @@ int main(int argc, char **argv)
                     default:
                         switch(tr_entry[i].type) {
                             case ti_NOP:
-                                printf("\t\tNOP:\n") ;
+                                printf("\t\t[%s Stage] NOP:\n", temp) ;
                                 break;
                             case ti_RTYPE:
                                 printf("\t\t[%s Stage] RTYPE:", temp) ;
@@ -195,6 +196,35 @@ char *stage_ID_map(int i) {
     }else {
         return "WB";
     }
+    
+}
+
+int checkPipeline(struct trace_item **item) {
+    
+    
+    int x = 0;
+    
+    int j;
+    for(j = 0; j > -5; j--) {
+        switch((*item)[j].type) {
+            case ti_NOP:
+                x++;
+                break;
+        }
+
+    }
+    
+    for(j = -4; j < 0; j++){
+        (*item)[j] = (*item)[j+1];
+    }
+    (*item)[0].type = 0;
+    
+    if (x == 5) {
+        
+        return 1;
+    }
+    
+    return 0;
     
 }
 
