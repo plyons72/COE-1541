@@ -14,7 +14,8 @@
 #include "CPU.h"
 
 char *stage_ID_map(int i);
-int checkPipeline(struct trace_item **item);
+int check_Pipeline(struct trace_item **item);
+int check_data_hazard();
 
 int main(int argc, char **argv)
 {
@@ -41,7 +42,7 @@ int main(int argc, char **argv)
     }
 
     if (argc > 4) {
-        fprintf(stdout, "\nToo many arguments innput\n\n");
+        fprintf(stdout, "\nToo many arguments input\n\n");
         exit(0);
     }
 
@@ -89,6 +90,11 @@ int main(int argc, char **argv)
             t_Addr = tr_entry->Addr;
         }
 
+        //Checks to see if there is a data hazard, and inserts a stall if so
+        if(check_data_hazard())
+        {
+          insert_stall();
+        }
         // SIMULATION OF A Pipelined CPU
 
         if (trace_view_on) {/* print the executed instruction if trace_view_on=1 */
@@ -228,4 +234,67 @@ int checkPipeline(struct trace_item **item) {
 
     return 0;
 
+}
+
+/*
+  Checks for a possible data hazard by comparing the current instruction to
+  the next one, and checking to see if a load instruction will affect something
+  that follows it by changing the source of the next instruction.
+*/
+int check_data_hazard(){
+
+  /*
+    If the next instruction is an R-Type instruction and the current is a load
+    instruction, where the source of the next = the destination of the current,
+    stall.
+  */
+  if (tr_entry[-1].type == 1 && tr_entry[0].type == 3) {
+    if (tr_entry->sReg_a == buffer[0].dReg) {
+      return 1;
+    }
+    /*
+      Otherwise, if the second source of the next operation is the destination
+      register of the previous operation, stall.
+    */
+    else if (tr_entry->sReg_b == buffer[0].dReg) {
+    return 1;
+    }
+  }
+
+  /*
+    If the next instruction is an I-Type and the current instruction is a load
+    instruction, AND the source register of the I-Type is the destination
+    register of the Load instruction, return 1 to insert no-ops and stall.
+  */
+  else if (tr_entry[-1].type == 2 && tr_entry[0].type == 3) {
+    if (tr_entry->sReg_a == buffer[0].dReg) {
+      return 1;
+    }
+  }
+
+  /*
+    A store instruction follows a load instruction, where the source relies
+    on the previous destination.
+  */
+  else if (tr_entry[-1].type == 4 && tr_entry[0].type == 3)
+    if (tr_entry->sReg_a == buffer[0].dReg)
+      return 1;
+
+  /*
+    A branch instruction follows a load instruction where the branch relies on
+    the value of the load word destination
+  */
+  else if (tr_entry[-1].type == 5 && tr_entry[0].type == 3){
+    if (tr_entry->sReg_a == buffer[0].dReg)
+      return 1;
+
+    else if (tr_entry->sReg_b == buffer[0].dReg)
+      return 1;
+  }
+
+  /*
+    If none of these cases are met, there is no data hazard. Return 0 so that
+    no stall takes place
+  */
+  return 0;
 }
