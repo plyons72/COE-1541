@@ -122,11 +122,16 @@ int main(int argc, char **argv)
                 if (prediction_method == 0) {
 
                     if (tr_pipeline[1].PC != (tr_pipeline[2].PC + 4)) {
+<<<<<<< HEAD
 
-                        printf("\n\n%x\n%x\n\n",tr_pipeline[1].PC, tr_pipeline[2].PC);
-                        insert_NOP(&tr_pipeline, 1);
-                        insert_NOP(&tr_pipeline, 0);
+=======
 
+                        //printf("\n\n%d\n%d\n\n",tr_pipeline[1].type, tr_pipeline[2].type);
+                        tr_pipeline[1].type = 0;
+                        tr_pipeline[0].type = 0;
+                        //printf("\n\n%d\n%d\n\n",tr_pipeline[1].type, tr_pipeline[2].type);
+
+>>>>>>> 9a207d31323328ea5d6007821193504607fae6c5
                     }
 
                 }else {
@@ -138,9 +143,12 @@ int main(int argc, char **argv)
                     if(branch_predictor[index] == 0) {
 
                         if (tr_pipeline[1].PC != (tr_pipeline[2].PC + 4)) {
+<<<<<<< HEAD
+=======
 
-                            insert_NOP(&tr_pipeline, 1);
-                            insert_NOP(&tr_pipeline, 0);
+                            tr_pipeline[1].type = 0;
+                            tr_pipeline[0].type = 0;
+>>>>>>> 9a207d31323328ea5d6007821193504607fae6c5
                             branch_predictor[index] = 1;
 
                         }
@@ -148,9 +156,12 @@ int main(int argc, char **argv)
                     }else {
 
                         if (tr_pipeline[2].Addr != tr_pipeline[1].PC) {
+<<<<<<< HEAD
+=======
 
-                            insert_NOP(&tr_pipeline, 1);
-                            insert_NOP(&tr_pipeline, 0);
+                            tr_pipeline[1].type = 0;
+                            tr_pipeline[0].type = 0;
+>>>>>>> 9a207d31323328ea5d6007821193504607fae6c5
                             branch_predictor[index] = 0;
 
                         }
