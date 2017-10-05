@@ -17,18 +17,20 @@ char *stage_ID_map(int i);
 int checkPipeline(struct trace_item **item);
 void insert_NOP(struct trace_item **item, int stage);
 void shift(struct trace_item **item);
+void hazard_switch(struct trace_item **item);
+
 int check_data_hazard(struct trace_item **item);
 struct trace_item temp;
 
-
 int main(int argc, char **argv)
 {
-    struct trace_item *item; //create a new trace_item struct pointer
-    struct trace_item *tr_pipeline;
+
     size_t size;
     char *trace_file_name;
     int prediction_method = 0; //branch prediction on or off. 0 for predict not taken, 1 for 1-bit prediction. Default value is 0
     int trace_view_on = 0; //Cycle output printed to screen on or off. 0 for off, 1 for on
+    struct trace_item *item; //create a new trace_item struct pointer
+    struct trace_item *tr_pipeline;
 
     /*unsigned char t_type = 0;
     unsigned char t_sReg_a= 0;
@@ -112,7 +114,9 @@ int main(int argc, char **argv)
 
             if (check_data_hazard(&tr_pipeline))
             {
-              insert_NOP(&tr_pipeline, 1);
+              shift(&tr_pipeline);
+              insert_NOP(&tr_pipeline, 5);
+              hazard_switch(&tr_pipeline);
             }
 
             //see if branch or jump first
@@ -297,18 +301,31 @@ void insert_NOP(struct trace_item **item, int stage) {
     item[stage] = &temp;
     return;
 
+
 }
 
 void shift(struct trace_item **item) {
 
     int j;
-    for(j = 4; j > 0; j--) {
+    for(j = 4; j >= 0; j--) {
         (*item)[j] = (*item)[j-1];
     }
+
+    // for(j = 1; j < 5; j++) {
+    //     (*item)[j] = (*item)[j+1];
+    // }
 
     return;
 
 }
+
+//Changes the instruction at risk for data hazard with a no-op
+void hazard_switch(struct trace_item **item) {
+     (*item)[0] = (*item)[1];
+     (*item)[1].type = ti_NOP;
+}
+
+
 
 /*
   Checks for a possible data hazard by comparing the current instruction to
@@ -322,15 +339,15 @@ int check_data_hazard(struct trace_item **item){
     instruction, where the source of the next = the destination of the current,
     stall.
   */
-  if (item[0]->type == 1 && item[1]->type == 3) {
-    if (item[0]->sReg_a == item[1]->dReg) {
+  if ((*item)[0].type == 1 && (*item)[1].type == 3) {
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {
       return 1;
     }
     /*
       Otherwise, if the second source of the next operation is the destination
       register of the previous operation, stall.
     */
-    else if (item[0]->sReg_b == item[1]->dReg) {
+    else if ((*item)[0].sReg_b == (*item)[1].dReg) {
     return 1;
     }
   }
@@ -340,8 +357,8 @@ int check_data_hazard(struct trace_item **item){
     instruction, AND the source register of the I-Type is the destination
     register of the Load instruction, return 1 to insert no-ops and stall.
   */
-  else if (item[0]->type == 2 && item[1]->type == 3) {
-    if (item[0]->sReg_a == item[1]->dReg) {
+  else if ((*item)[0].type == 2 && (*item)[1].type == 3) {
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {
       return 1;
     }
   }
@@ -350,8 +367,8 @@ int check_data_hazard(struct trace_item **item){
     A store instruction follows a load instruction, where the source relies
     on the previous destination.
   */
-  else if (item[0]->type == 4 && item[1]->type == 3) {
-    if (item[0]->sReg_a == item[1]->dReg) {
+  else if ((*item)[0].type == 4 && (*item)[1].type == 3) {
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {
       return 1;
     }
   }
@@ -360,12 +377,12 @@ int check_data_hazard(struct trace_item **item){
     A branch instruction follows a load instruction where the branch relies on
     the value of the load word destination
   */
-  else if (item[0]->type == 5 && item[1]->type == 3){
-    if (item[0]->sReg_a == item[1]->dReg) {
+  else if ((*item)[0].type == 5 && (*item)[1].type == 3){
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {
       return 1;
     }
 
-    else if (item[0]->sReg_b == item[1]->dReg) {
+    else if ((*item)[0].sReg_b == (*item)[1].dReg) {
       return 1;
     }
   }
