@@ -117,6 +117,8 @@ int main(int argc, char **argv)
               shift(&tr_pipeline);
               insert_NOP(&tr_pipeline, 5);
               hazard_switch(&tr_pipeline);
+              shift(&tr_pipeline);
+              hazard_switch(&tr_pipeline);
             }
 
             //see if branch or jump first
@@ -321,8 +323,8 @@ void shift(struct trace_item **item) {
 
 //Changes the instruction at risk for data hazard with a no-op
 void hazard_switch(struct trace_item **item) {
-     (*item)[0] = (*item)[1];
-     (*item)[1].type = ti_NOP;
+    (*item)[0] = (*item)[1];
+    (*item)[1].type = ti_NOP;
 }
 
 
