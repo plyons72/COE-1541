@@ -17,7 +17,9 @@ char *stage_ID_map(int i);
 int checkPipeline(struct trace_item **item);
 void insert_NOP(struct trace_item **item, int stage);
 void shift(struct trace_item **item);
+int check_data_hazard();
 struct trace_item temp;
+
 
 int main(int argc, char **argv)
 {
@@ -27,27 +29,27 @@ int main(int argc, char **argv)
     char *trace_file_name;
     int prediction_method = 0; //branch prediction on or off. 0 for predict not taken, 1 for 1-bit prediction. Default value is 0
     int trace_view_on = 0; //Cycle output printed to screen on or off. 0 for off, 1 for on
-    
+
     /*unsigned char t_type = 0;
     unsigned char t_sReg_a= 0;
     unsigned char t_sReg_b= 0;
     unsigned char t_dReg= 0;
     unsigned int t_PC = 0;
     unsigned int t_Addr = 0;*/
-    
+
     unsigned int cycle_number = 0;
-    
+
     if (argc == 1) { //If the input does not include the filename there is nothing to trace (i.e. no input), so exit
         fprintf(stdout, "\nUSAGE: tv <trace_file> <switch - any character>\n");
         fprintf(stdout, "\n(switch) to turn on or off individual item view.\n\n");
         exit(0);
     }
-    
+
     if (argc > 4) {
         fprintf(stdout, "\nToo many arguments innput\n\n");
         exit(0);
     }
-    
+
     trace_file_name = argv[1]; //filename is the second argument, so take it
     if (argc == 3) {
         prediction_method = atoi(argv[2]); //prediction_method will be changed from defualt if it is included. It is the third argument
@@ -63,32 +65,32 @@ int main(int argc, char **argv)
             exit(0);
         }
     }
-    
+
     fprintf(stdout, "\n ** opening file %s\n", trace_file_name);
-    
+
     trace_fd = fopen(trace_file_name, "rb"); //open file to be read
-    
+
     if (!trace_fd) { //if file fopen() returns an error, exit
         fprintf(stdout, "\ntrace file %s not opened.\n\n", trace_file_name);
         exit(0);
     }
-    
+
     trace_init(); //initialize the trace
-    
+
     //Initialize Pipeline with 5 no_ops
     int k;
     for(k = 0; k < 5; k++) {
         insert_NOP(&tr_pipeline, k);
     }
-    
+
     int *branch_predictor = malloc(sizeof(int)*64);
     for (k = 0; k < 64; k++) {
         branch_predictor[k] = 0;
     }
-    
+
     while(1) { //Execute the trace program
         size = trace_get_item(&tr_entry); //get size of the trace program as well as the trace_item field
-        
+
         if (!size && !checkPipeline(&tr_pipeline)) {       /* no more instructions (trace_items) to simulate */
             printf("+ Simulation terminates at cycle : %u\n", cycle_number);
             break;
@@ -107,58 +109,64 @@ int main(int argc, char **argv)
             }else {
                 tr_pipeline[0] = *tr_entry;
             }
-            
+
+            if (check_data_hazard())
+            {
+              insert_NOP(&tr_pipeline, 1);
+              i
+            }
+
             //see if branch or jump first
             if (tr_pipeline[2].type == ti_BRANCH || tr_pipeline[2].type == ti_JTYPE || tr_pipeline[2].type == ti_JRTYPE) {
-                
+
                 if (prediction_method == 0) {
-                                 
+
                     if (tr_pipeline[1].PC != (tr_pipeline[2].PC + 4)) {
-                        
+
                         printf("\n\n%x\n%x\n\n",tr_pipeline[1].PC, tr_pipeline[2].PC);
                         insert_NOP(&tr_pipeline, 1);
                         insert_NOP(&tr_pipeline, 0);
-                       
+
                     }
-                                 
+
                 }else {
-                    
+
                     int index = tr_pipeline[2].PC;
                     index = index >> 4;
                     index = index & 511;
-                    
+
                     if(branch_predictor[index] == 0) {
-                        
+
                         if (tr_pipeline[1].PC != (tr_pipeline[2].PC + 4)) {
-                            
+
                             insert_NOP(&tr_pipeline, 1);
                             insert_NOP(&tr_pipeline, 0);
                             branch_predictor[index] = 1;
-                            
+
                         }
-                        
+
                     }else {
-                        
+
                         if (tr_pipeline[2].Addr != tr_pipeline[1].PC) {
-                            
+
                             insert_NOP(&tr_pipeline, 1);
                             insert_NOP(&tr_pipeline, 0);
                             branch_predictor[index] = 0;
-                            
+
                         }
-                        
+
                     }
-                                 
+
                 }
-                
+
             }
-            
+
         }
-        
+
         // SIMULATION OF A Pipelined CPU
-        
+
         if (trace_view_on) {/* print the executed instruction if trace_view_on=1 */
-            
+
             int i;
             for(i = 0; i < 5; i++){
                 char *temp = stage_ID_map(i);
@@ -243,15 +251,15 @@ int main(int argc, char **argv)
             }
         }
     }
-    
+
     trace_uninit(); //uninitialize the trace and exit
     free(branch_predictor);
-    
+
     exit(0);
 }
 
 char *stage_ID_map(int i) {
-    
+
     if(i == 0) {
         return "IF";
     }else if(i == 1) {
@@ -263,13 +271,13 @@ char *stage_ID_map(int i) {
     }else {
         return "WB";
     }
-    
+
 }
 
 int checkPipeline(struct trace_item **item) {
-    
+
     int x = 0;
-    
+
     int j;
     for(j = 0; j < 5; j++) {
         switch((*item)[j].type) {
@@ -279,15 +287,15 @@ int checkPipeline(struct trace_item **item) {
         }
 
     }
-    
+
     if (x == 5) {
-        
+
         return 0;
-        
+
     }
-    
+
     return 1;
-    
+
 }
 
 void insert_NOP(struct trace_item **item, int stage) {
@@ -295,17 +303,79 @@ void insert_NOP(struct trace_item **item, int stage) {
     temp.type = ti_NOP;
     item[stage] = &temp;
     return;
-    
+
 }
 
 void shift(struct trace_item **item) {
-    
+
     int j;
     for(j = 4; j > 0; j--) {
         (*item)[j] = (*item)[j-1];
     }
-    
+
     return;
-    
+
 }
 
+/*
+  Checks for a possible data hazard by comparing the current instruction to
+  the next one, and checking to see if a load instruction will affect something
+  that follows it by changing the source of the next instruction.
+*/
+int check_data_hazard(){
+
+  /*
+    If the next instruction is an R-Type instruction and the current is a load
+    instruction, where the source of the next = the destination of the current,
+    stall.
+  */
+  if (tr_entry[0].type == 1 && tr_entry[1].type == 3) {
+    if (tr_entry->sReg_a == buffer[0].dReg) {
+      return 1;
+    }
+    /*
+      Otherwise, if the second source of the next operation is the destination
+      register of the previous operation, stall.
+    */
+    else if (tr_entry->sReg_b == buffer[1].dReg) {
+    return 1;
+    }
+  }
+
+  /*
+    If the next instruction is an I-Type and the current instruction is a load
+    instruction, AND the source register of the I-Type is the destination
+    register of the Load instruction, return 1 to insert no-ops and stall.
+  */
+  else if (tr_entry[0].type == 2 && tr_entry[1].type == 3) {
+    if (tr_entry->sReg_a == buffer[0].dReg) {
+      return 1;
+    }
+  }
+
+  /*
+    A store instruction follows a load instruction, where the source relies
+    on the previous destination.
+  */
+  else if (tr_entry[0].type == 4 && tr_entry[1].type == 3)
+    if (tr_entry->sReg_a == buffer[0].dReg)
+      return 1;
+
+  /*
+    A branch instruction follows a load instruction where the branch relies on
+    the value of the load word destination
+  */
+  else if (tr_entry[0].type == 5 && tr_entry[1].type == 3){
+    if (tr_entry->sReg_a == buffer[0].dReg)
+      return 1;
+
+    else if (tr_entry->sReg_b == buffer[0].dReg)
+      return 1;
+  }
+
+  /*
+    If none of these cases are met, there is no data hazard. Return 0 so that
+    no stall takes place
+  */
+  return 0;
+}
