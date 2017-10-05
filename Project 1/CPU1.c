@@ -342,16 +342,12 @@ int check_data_hazard(struct trace_item **item){
     stall.
   */
   if ((*item)[0].type == 1 && (*item)[1].type == 3) {
-    if ((*item)[0].sReg_a == (*item)[1].dReg) {
-      return 1;
-    }
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {return 1;}
     /*
       Otherwise, if the second source of the next operation is the destination
       register of the previous operation, stall.
     */
-    else if ((*item)[0].sReg_b == (*item)[1].dReg) {
-    return 1;
-    }
+    else if ((*item)[0].sReg_b == (*item)[1].dReg) {return 1;}
   }
 
   /*
@@ -360,9 +356,7 @@ int check_data_hazard(struct trace_item **item){
     register of the Load instruction, return 1 to insert no-ops and stall.
   */
   else if ((*item)[0].type == 2 && (*item)[1].type == 3) {
-    if ((*item)[0].sReg_a == (*item)[1].dReg) {
-      return 1;
-    }
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {return 1;}
   }
 
   /*
@@ -370,9 +364,7 @@ int check_data_hazard(struct trace_item **item){
     on the previous destination.
   */
   else if ((*item)[0].type == 4 && (*item)[1].type == 3) {
-    if ((*item)[0].sReg_a == (*item)[1].dReg) {
-      return 1;
-    }
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {return 1;}
   }
 
   /*
@@ -380,20 +372,15 @@ int check_data_hazard(struct trace_item **item){
     the value of the load word destination
   */
   else if ((*item)[0].type == 5 && (*item)[1].type == 3){
-    if ((*item)[0].sReg_a == (*item)[1].dReg) {
-      return 1;
-    }
-
-    else if ((*item)[0].sReg_b == (*item)[1].dReg) {
-      return 1;
-    }
+    if ((*item)[0].sReg_a == (*item)[1].dReg) {return 1;}
+    else if ((*item)[0].sReg_b == (*item)[1].dReg) {return 1;}
   }
 
   /*
     If none of these cases are met, there is no data hazard. Return 0 so that
     no stall takes place
   */
-  else { return 0; }
+  else {return 0;}
 
   //Fallthrough case shouldn't be reached
   return 0;
