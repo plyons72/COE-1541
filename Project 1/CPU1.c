@@ -122,19 +122,15 @@ int main(int argc, char **argv)
                 if (prediction_method == 0) {
 
                     if (tr_pipeline[1].PC != (tr_pipeline[2].PC + 4)) {
-<<<<<<< HEAD
-
-=======
-
                         //printf("\n\n%d\n%d\n\n",tr_pipeline[1].type, tr_pipeline[2].type);
                         tr_pipeline[1].type = 0;
                         tr_pipeline[0].type = 0;
                         //printf("\n\n%d\n%d\n\n",tr_pipeline[1].type, tr_pipeline[2].type);
-
->>>>>>> 9a207d31323328ea5d6007821193504607fae6c5
                     }
 
-                }else {
+                }
+
+                else {
 
                     int index = tr_pipeline[2].PC;
                     index = index >> 4;
@@ -143,35 +139,22 @@ int main(int argc, char **argv)
                     if(branch_predictor[index] == 0) {
 
                         if (tr_pipeline[1].PC != (tr_pipeline[2].PC + 4)) {
-<<<<<<< HEAD
-=======
-
                             tr_pipeline[1].type = 0;
                             tr_pipeline[0].type = 0;
->>>>>>> 9a207d31323328ea5d6007821193504607fae6c5
                             branch_predictor[index] = 1;
-
                         }
-
-                    }else {
-
-                        if (tr_pipeline[2].Addr != tr_pipeline[1].PC) {
-<<<<<<< HEAD
-=======
-
-                            tr_pipeline[1].type = 0;
-                            tr_pipeline[0].type = 0;
->>>>>>> 9a207d31323328ea5d6007821193504607fae6c5
-                            branch_predictor[index] = 0;
-
-                        }
-
                     }
 
+                    else {
+
+                        if (tr_pipeline[2].Addr != tr_pipeline[1].PC) {
+                            tr_pipeline[1].type = 0;
+                            tr_pipeline[0].type = 0;
+                            branch_predictor[index] = 0;
+                        }
+                    }
                 }
-
             }
-
         }
 
         // SIMULATION OF A Pipelined CPU
