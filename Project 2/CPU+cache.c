@@ -96,7 +96,6 @@ int main(int argc, char **argv)
             exit(0);
     }
     
-    exit(0);
     fprintf(stdout, "\n ** opening file %s\n", trace_file_name);
     
     trace_fd = fopen(trace_file_name, "rb"); //open file to be read
