@@ -12,7 +12,6 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include "CPU.h"
-#include "cache.h"
 
 int checkPipeline();
 void insert_NOP(int stage);
@@ -21,20 +20,11 @@ void insert_squashed(int k);
 int predict_branch(int PC);
 int check_data_hazard();
 
-//to keep values for pipelined CPU
 struct trace_item tr_pipeline[6];
 int read_next = 1;
 int branch_op = 0;
 int branch_predictor[64];
 struct trace_item *item;
-
-// to keep cache statistics
-unsigned int I_accesses = 0;
-unsigned int I_misses = 0;
-unsigned int D_read_accesses = 0;
-unsigned int D_read_misses = 0;
-unsigned int D_write_accesses = 0;
-unsigned int D_write_misses = 0;
 
 int main(int argc, char **argv)
 {
@@ -43,23 +33,6 @@ int main(int argc, char **argv)
     char *trace_file_name;
     int prediction_method = 0; //branch prediction on or off. 0 for predict not taken, 1 for 1-bit prediction. Default value is 0
     int trace_view_on = 0; //Cycle output printed to screen on or off. 0 for off, 1 for on
-    
-    //values for trace item
-    unsigned char t_type = 0;
-    unsigned char t_sReg_a= 0;
-    unsigned char t_sReg_b= 0;
-    unsigned char t_dReg= 0;
-    unsigned int t_PC = 0;
-    unsigned int t_Addr = 0;
-    
-    //initial values for cache parameters before taking input
-    unsigned int I_size = 16;
-    unsigned int I_assoc = 4;
-    unsigned int I_bsize = 8;
-    unsigned int D_size = 16;
-    unsigned int D_assoc = 4;
-    unsigned int D_bsize = 8;
-    unsigned int mem_latency = 20;
     
     int k;
     for(k = 0; k < 5; k++) {
@@ -74,28 +47,26 @@ int main(int argc, char **argv)
         exit(0);
     }
     
-    if (argc != 11) {
-        fprintf(stdout, "\nWrong input arguments\n\n");
+    if (argc > 4) {
+        fprintf(stdout, "\nToo many arguments innput\n\n");
         exit(0);
     }
     
-    //Get file inputs
-    trace_file_name = argv[1];
-    prediction_method = atoi(argv[2]);
-    trace_view_on = atoi(argv[3]) ;
-    I_size = atoi(agrv[4]);
-    I_assoc = atoi(agrv[5]);
-    I_bsize = atoi(agrv[6]);
-    D_size = atoi(agrv[7]);
-    D_assoc = atoi(agrv[8]);
-    D_bsize = atoi(agrv[9]);
-    mem_latency = atoi(agrv[10]);
-    
-    if (prediction_method < 0 || prediction_method > 1 || trace_view_on < 0 || trace_view_on > 1 || I_size < 0 || I_assoc < 0 || I_bsize < 0 || D_size < 0 || D_assoc < 0 || D_bsize < 0 || mem_latency < 0) {
+    trace_file_name = argv[1]; //filename is the second argument, so take it
+    if (argc == 3) {
+        prediction_method = atoi(argv[2]); //prediction_method will be changed from defualt if it is included. It is the third argument
+        if (prediction_method < 0 || prediction_method > 1) {
+            fprintf(stdout, "\nInvalid input arguments\n\n"); //check if input is invalid
+            exit(0);
+        }
+    }else if (argc == 4) {
+        prediction_method = atoi(argv[2]); //prediction_method will be changed from defualt if it is included. It is the third argument
+        trace_view_on = atoi(argv[3]) ; //trace_view_on will be changed from defualt if it is included. It is the fourth argument
+        if (prediction_method < 0 || prediction_method > 1 || trace_view_on < 0 || trace_view_on > 1) {
             fprintf(stdout, "\nInvalid input arguments\n\n");
             exit(0);
+        }
     }
-    
     
     fprintf(stdout, "\n ** opening file %s\n", trace_file_name);
     
@@ -107,9 +78,6 @@ int main(int argc, char **argv)
     }
     
     trace_init(); //initialize the trace
-    struct cache_t *I_cache, *D_cache;
-    I_cache = cache_create(I_size, I_bsize, I_assoc, mem_latency);
-    D_cache = cache_create(D_size, D_bsize, D_assoc, mem_latency);
     
     for (k = 0; k < 64; k++) {
         branch_predictor[k] = 0;
@@ -122,10 +90,7 @@ int main(int argc, char **argv)
         
         if (!size && !checkPipeline()) {       /* no more instructions (trace_items) to simulate */
             printf("+ Simulation terminates at cycle : %u\n", cycle_number);
-            printf("I-cache accesses %u and misses %u\n", I_accesses, I_misses);
-            printf("D-cache Read accesses %u and misses %u\n", D_read_accesses, D_read_misses);
-            printf("D-cache Write accesses %u and misses %u\n", D_write_accesses, D_write_misses);
-            break ;
+            break;
         }
         else{              /* parse the next instruction to simulate */
             cycle_number++;
@@ -219,9 +184,6 @@ int main(int argc, char **argv)
         }
         
         // SIMULATION OF A Pipelined CPU
-        
-        cycle_number = cycle_number + cache_access(I_cache, item->PC, 0); /* simulate instruction fetch */
-        // update I_access and I_misses
         
         //prints what left the pipeline
         if (trace_view_on == 1) {
