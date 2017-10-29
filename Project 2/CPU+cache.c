@@ -41,8 +41,10 @@ int main(int argc, char **argv)
     
     size_t size;
     char *trace_file_name;
+    char *cache_config_name;
     int prediction_method = 0; //branch prediction on or off. 0 for predict not taken, 1 for 1-bit prediction. Default value is 0
     int trace_view_on = 0; //Cycle output printed to screen on or off. 0 for off, 1 for on
+    static FILE *cache_config_trace;
     
     //values for trace item
     unsigned char t_type = 0;
@@ -74,7 +76,7 @@ int main(int argc, char **argv)
         exit(0);
     }
     
-    if (argc != 11) {
+    if (argc != 5) {
         fprintf(stdout, "\nWrong input arguments\n\n");
         exit(0);
     }
@@ -83,13 +85,23 @@ int main(int argc, char **argv)
     trace_file_name = argv[1];
     prediction_method = atoi(argv[2]);
     trace_view_on = atoi(argv[3]) ;
-    I_size = atoi(argv[4]);
-    I_assoc = atoi(argv[5]);
-    I_bsize = atoi(argv[6]);
-    D_size = atoi(argv[7]);
-    D_assoc = atoi(argv[8]);
-    D_bsize = atoi(argv[9]);
-    mem_latency = atoi(argv[10]);
+    cache_config_name = argv[4];
+    
+    cache_config_trace = fopen(cache_config_name, "rb");
+    if (!cache_config_trace) { //if file fopen() returns an error, exit
+        fprintf(stdout, "\ncache_config file %s not opened.\n\n", cache_config_name);
+        exit(0);
+    }
+    fscanf(cache_config_trace, "%d", &I_size);
+    fscanf(cache_config_trace, "%d", &I_assoc);
+    fscanf(cache_config_trace, "%d", &I_bsize);
+    fscanf(cache_config_trace, "%d", &D_size);
+    fscanf(cache_config_trace, "%d", &D_assoc);
+    fscanf(cache_config_trace, "%d", &D_bsize);
+    fscanf(cache_config_trace, "%d", &mem_latency);
+    fclose(cache_config_trace);
+    
+    //printf("%d\n%d\n%d\n%d\n%d\n%d\n%d\n",I_size,I_assoc,I_bsize,D_size,D_assoc,D_bsize,mem_latency);
     
     if (prediction_method < 0 || prediction_method > 1 || trace_view_on < 0 || trace_view_on > 1) {
             fprintf(stdout, "\nInvalid input arguments\n\n");
