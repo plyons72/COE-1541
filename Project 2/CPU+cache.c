@@ -20,6 +20,7 @@ void shift();
 void insert_squashed(int k);
 int predict_branch(int PC);
 int check_data_hazard();
+void print_pipeline_output(int cycle, int stalled);
 
 //to keep values for pipelined CPU
 struct trace_item tr_pipeline[6];
@@ -45,6 +46,7 @@ int main(int argc, char **argv)
     int prediction_method = 0; //branch prediction on or off. 0 for predict not taken, 1 for 1-bit prediction. Default value is 0
     int trace_view_on = 0; //Cycle output printed to screen on or off. 0 for off, 1 for on
     static FILE *cache_config_trace;
+    int stall = 0;
     
     //values for trace item
     unsigned char t_type = 0;
@@ -76,7 +78,7 @@ int main(int argc, char **argv)
         exit(0);
     }
     
-    if (argc != 5) {
+    if (argc != 5 && argc != 4) {
         fprintf(stdout, "\nWrong input arguments\n\n");
         exit(0);
     }
@@ -84,14 +86,20 @@ int main(int argc, char **argv)
     //Get file inputs
     trace_file_name = argv[1];
     prediction_method = atoi(argv[2]);
-    trace_view_on = atoi(argv[3]) ;
-    cache_config_name = argv[4];
+    trace_view_on = atoi(argv[3]);
+    if (argc == 5) {
+        cache_config_name = argv[4];
+    }else {
+        cache_config_name = "cache_config.txt";
+    }
     
+    //open file
     cache_config_trace = fopen(cache_config_name, "rb");
     if (!cache_config_trace) { //if file fopen() returns an error, exit
         fprintf(stdout, "\ncache_config file %s not opened.\n\n", cache_config_name);
         exit(0);
     }
+    //read in file values
     fscanf(cache_config_trace, "%d", &I_size);
     fscanf(cache_config_trace, "%d", &I_assoc);
     fscanf(cache_config_trace, "%d", &I_bsize);
@@ -129,6 +137,21 @@ int main(int argc, char **argv)
     while(1) { //Execute the trace program{
         if(read_next == 1 && branch_op == 0) {
             size = trace_get_item(&item); //get size of the trace program as well as the trace_item field
+            /*Insert code for retrieving instruction cache here in IF stage
+             If fetching instruction misses, stall pipeline for stall_cycles*/
+            int stall_cycle = 0;
+            stall_cycle = cache_access(I_cache,item->PC,0);
+            I_accesses++;
+            if (stall_cycle != 0) {
+                I_misses++;
+            }
+            for (k = 0; k < stall_cycle; k++) {
+                cycle_number++;
+                if (trace_view_on == 1) {
+                    print_pipeline_output(cycle_number, 1);
+                }
+            }
+            
         }
         
         if (!size && !checkPipeline()) {       /* no more instructions (trace_items) to simulate */
@@ -142,6 +165,33 @@ int main(int argc, char **argv)
             cycle_number++;
             shift();
  
+            /*Before checking pipeline for hazards, insert code for data cache here in MEM stage
+            If load/store to data cache misses, stall entire pipeline for stall_cycles*/
+            if (tr_pipeline[4].type == ti_LOAD || tr_pipeline[4].type == ti_STORE) {
+                int stall_cycle = 0;
+                if (tr_pipeline[4].type == ti_LOAD) {
+                    stall_cycle = cache_access(D_cache,tr_pipeline[4].Addr,0);
+                    D_read_accesses++;
+                    if (stall_cycle != 0) {
+                        D_read_misses++;
+                    }
+                }else {
+                    stall_cycle = cache_access(D_cache,tr_pipeline[4].Addr,1);
+                    D_write_accesses++;
+                    if (stall_cycle != 0) {
+                        D_write_misses++;
+                    }
+                }
+                
+             for (k = 0; k < stall_cycle; k++) {
+                     cycle_number++;
+                     if (trace_view_on == 1) {
+                         print_pipeline_output(cycle_number, 1);
+                     }
+             
+                 }
+            }
+            
             if (check_data_hazard()) {
                 
                 insert_NOP(0);
@@ -231,52 +281,12 @@ int main(int argc, char **argv)
         
         // SIMULATION OF A Pipelined CPU
         
-        cycle_number = cycle_number + cache_access(I_cache, item->PC, 0); /* simulate instruction fetch */
+        //cycle_number = cycle_number + cache_access(I_cache, item->PC, 0); /* simulate instruction fetch */
         // update I_access and I_misses
         
         //prints what left the pipeline
         if (trace_view_on == 1) {
-            switch(tr_pipeline[5].type) {
-                case ti_NOP:
-                    if(tr_pipeline[5].Addr == -1) {
-                        printf("[cycle %d] SQUASHED\n",cycle_number);
-                    }else {
-                        printf("[cycle %d] NOP\n",cycle_number);
-                    }
-                    break;
-                case ti_RTYPE:
-                    printf("[cycle %d] RTYPE:",cycle_number) ;
-                    printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].sReg_b, tr_pipeline[5].dReg);
-                    break;
-                case ti_ITYPE:
-                    printf("[cycle %d] ITYPE:",cycle_number) ;
-                    printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].dReg, tr_pipeline[5].Addr);
-                    break;
-                case ti_LOAD:
-                    printf("[cycle %d] LOAD:",cycle_number) ;
-                    printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].dReg, tr_pipeline[5].Addr);
-                    break;
-                case ti_STORE:
-                    printf("[cycle %d] STORE:",cycle_number) ;
-                    printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].sReg_b, tr_pipeline[5].Addr);
-                    break;
-                case ti_BRANCH:
-                    printf("[cycle %d] BRANCH:",cycle_number) ;
-                    printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].sReg_b, tr_pipeline[5].Addr);
-                    break;
-                case ti_JTYPE:
-                    printf("[cycle %d] JTYPE:",cycle_number) ;
-                    printf(" (PC: %x)(addr: %x)\n", tr_pipeline[5].PC,tr_pipeline[5].Addr);
-                    break;
-                case ti_SPECIAL:
-                    printf("[cycle %d] SPECIAL\n:",cycle_number) ;
-                    break;
-                case ti_JRTYPE:
-                    printf("[cycle %d] JRTYPE:",cycle_number) ;
-                    printf(" (PC: %x) (sReg_a: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].dReg, tr_pipeline[5].Addr);
-                    break;
-            }
-            
+            print_pipeline_output(cycle_number, 0);
         }
         
     }
@@ -419,4 +429,52 @@ int predict_branch(int PC) {
     index = index >> 4;
     index = index & 511;
     return branch_predictor[index];
+}
+
+void print_pipeline_output(int cycle_number, int stalled) {
+    
+    if (stalled == 1) {
+        printf("[cycle %d] Pipeline Stalled Due to Cache Miss\n",cycle_number);
+    }else {
+        switch(tr_pipeline[5].type) {
+            case ti_NOP:
+                if(tr_pipeline[5].Addr == -1) {
+                    printf("[cycle %d] SQUASHED\n",cycle_number);
+                }else {
+                    printf("[cycle %d] NOP\n",cycle_number);
+                }
+                break;
+            case ti_RTYPE:
+                printf("[cycle %d] RTYPE:",cycle_number) ;
+                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(dReg: %d) \n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].sReg_b, tr_pipeline[5].dReg);
+                break;
+            case ti_ITYPE:
+                printf("[cycle %d] ITYPE:",cycle_number) ;
+                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].dReg, tr_pipeline[5].Addr);
+                break;
+            case ti_LOAD:
+                printf("[cycle %d] LOAD:",cycle_number) ;
+                printf(" (PC: %x)(sReg_a: %d)(dReg: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].dReg, tr_pipeline[5].Addr);
+                break;
+            case ti_STORE:
+                printf("[cycle %d] STORE:",cycle_number) ;
+                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].sReg_b, tr_pipeline[5].Addr);
+                break;
+            case ti_BRANCH:
+                printf("[cycle %d] BRANCH:",cycle_number) ;
+                printf(" (PC: %x)(sReg_a: %d)(sReg_b: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].sReg_a, tr_pipeline[5].sReg_b, tr_pipeline[5].Addr);
+                break;
+            case ti_JTYPE:
+                printf("[cycle %d] JTYPE:",cycle_number) ;
+                printf(" (PC: %x)(addr: %x)\n", tr_pipeline[5].PC,tr_pipeline[5].Addr);
+                break;
+            case ti_SPECIAL:
+                printf("[cycle %d] SPECIAL\n:",cycle_number) ;
+                break;
+            case ti_JRTYPE:
+                printf("[cycle %d] JRTYPE:",cycle_number) ;
+                printf(" (PC: %x) (sReg_a: %d)(addr: %x)\n", tr_pipeline[5].PC, tr_pipeline[5].dReg, tr_pipeline[5].Addr);
+                break;
+        }
+    }
 }
