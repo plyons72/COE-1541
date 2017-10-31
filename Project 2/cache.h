@@ -94,6 +94,62 @@ unsigned long pop(struct cache_t *cache, unsigned long index) {
     
 }
 
+/*cutout the node with the given tag*/
+void cut(struct cache_t *cache, unsigned long index, unsigned long tag) {
+    
+    if ((cache->cache_block[index])->tag == 4294967295) { /*if the stack is empty, return*/
+        
+        return;
+        
+    }
+    
+    struct Node *new_node = (struct Node *)malloc(sizeof(struct Node));
+    new_node = (cache->cache_block[index]);
+    
+    struct Node *last_node = (struct Node *)malloc(sizeof(struct Node));
+    last_node = (cache->cache_block[index]);
+    
+    int count = 0;
+    int found = 0;
+    
+    if ((cache->cache_block[index])->next_node == NULL) { /*if there is only one node in the stack, make it null*/
+        
+        if ((cache->cache_block[index])->tag == tag) {
+            
+            (cache->cache_block[index])->tag = 4294967295; //if the tags are equal make it null
+            
+        }
+        
+    } else { /*If there is more than one node, set the current node to the next node and the last node to the prevous node*/
+        
+        if (new_node->tag == tag) { /*if first node is the node we are looking for*/
+            found = 1;
+        }
+        
+        while (new_node->next_node != NULL && found == 0) { /*traverse to Node with tag*/
+            new_node = new_node->next_node;
+            if (count != 0) {
+                last_node = last_node->next_node;
+            }
+            count++;
+            if (new_node->tag == tag) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if (count == 0) { /*special case if it is first node and there are at least two nodes*/
+            cache->cache_block[index] = (cache->cache_block[index])->next_node;
+        }else {
+            last_node->next_node = new_node->next_node; //remove node with tag
+        }
+        
+    }
+    
+    return;
+    
+}
+
 /*adds cache block to LRU stack and returns the number of nodes in the stack*/
 void push(struct cache_t *cache, unsigned long index, unsigned long tag) {
 
@@ -193,11 +249,11 @@ int hit_or_miss(struct cache_t *cache, unsigned long tag, long index, int access
     int i;
     for(i = 0; i < cache->assoc; i++){
         if((cache->blocks[index][i]).tag == tag && (cache->blocks[index][i]).valid == 1){ //check if there is a hit
-            if(access_type == 1){ //set dirty bit based on access type
+            if(access_type == 1){ //set dirty bit if we are writing to memory that is already there, indicating that if it there is going to be a block replacement the data needs to be written back
                 (cache->blocks[index][i]).dirty = 1;
             }
-            unsigned long replace_tag = pop(cache,index);
-            push(cache, index, replace_tag);
+            cut(cache, index, tag);
+            push(cache, index, tag);
             return 0; //return 0 if there is a hit
         }
     }
@@ -209,7 +265,12 @@ int hit_or_miss(struct cache_t *cache, unsigned long tag, long index, int access
         push(cache, index, tag); //add tag to stack
         num_nodes = num_node(cache,index);
         cache->blocks[index][num_nodes-1].tag = tag; //set block
-        cache->blocks[index][num_nodes-1].dirty = 1;
+        cache->blocks[index][num_nodes-1].dirty = 0;
+        if (access_type == 0) {
+            cache->blocks[index][num_nodes-1].dirty = 0; //if a read, no need to set the dirty bit as value in cache is not changed since it was retrieved from memory
+        }else {
+            cache->blocks[index][num_nodes-1].dirty = 1; //if a write, set the dirty bit as value in cache has changed after it was retrieved
+        }
         cache->blocks[index][num_nodes-1].valid = 1;
         return 1; //return a miss with no write back
     }
@@ -227,17 +288,25 @@ int hit_or_miss(struct cache_t *cache, unsigned long tag, long index, int access
     }
     
     if(cache->blocks[index][replacement].valid == 1){ //if the replacement block is valid, replace it and either write back or not
-        if(cache->blocks[index][replacement].dirty == 0){ //if dirty is not set, do not write back and set the block
+        if(cache->blocks[index][replacement].dirty == 0){ //if dirty is not set, write has not occurred since that data was read and no write-back is needed before replacement
             cache->blocks[index][replacement].tag = tag;
-            cache->blocks[index][replacement].dirty = 1;
+            if (access_type == 0) {
+                cache->blocks[index][replacement].dirty = 0; //if a read, no need to set the dirty bit as value in cache is not changed since it was retrieved from memory
+            }else {
+                cache->blocks[index][replacement].dirty = 1; //if a write, set the dirty bit as value in cache has changed after it was retrieved
+            }
             cache->blocks[index][replacement].valid = 1;
             pop(cache, index); //update the LRU stack
             push(cache, index, tag);
             return 1;
         }
-        else if(cache->blocks[index][replacement].dirty == 1){ //if the dirty is set, write back and set the block
+        else if(cache->blocks[index][replacement].dirty == 1){ //if the dirty is set, we need to write back before a replacement can be made
             cache->blocks[index][replacement].tag = tag;
-            cache->blocks[index][replacement].dirty = 1;
+            if (access_type == 0) {
+                cache->blocks[index][replacement].dirty = 0; //if a read, no need to set the dirty bit as value in cache is not changed since it was retrieved from memory
+            }else {
+                cache->blocks[index][replacement].dirty = 1; //if a write, set the dirty bit as value in cache has changed after it was retrieved
+            }
             cache->blocks[index][replacement].valid = 1;
             pop(cache, index); //update the LRU stack
             push(cache, index, tag);
