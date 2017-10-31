@@ -4,7 +4,7 @@
  Patrick Lyons
  just compile with gcc -o CPU+cache CPU+cache.c
  and execute using
- ./CPU+cache 'trace file' 'prediction_method' 'trace_vew_on' 'I_size' 'I_assoc' 'I_bsize' 'D_size' 'D_assoc' 'D_bsize' 'mem_latency'
+ ./CPU+cache 'trace file' 'prediction_method' 'trace_vew_on'
  ***************************************************************/
 
 #include <stdio.h>
