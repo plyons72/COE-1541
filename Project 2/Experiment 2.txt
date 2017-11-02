@@ -1,0 +1,65 @@
+** opening file sample_large1.tr
+
+I Cache Size: 16 KB
+I Cache Associativity: 4
+I Cache Block Size: 4 Bytes
+
+
+D Cache Size: 16 KB
+D Cache Associativity: 4
+D Cache Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 233357279
+I-cache accesses 93672795 and misses 1667
+D-cache Read accesses 20813032 and misses 4879923
+D-cache Write accesses 9625833 and misses 296516
+
+I-cache miss rate = 0.000018
+D-cache miss rate: 0.170060
+
+
+*************************************************
+** opening file sample_large2.tr
+
+I Cache Size: 16 KB
+I Cache Associativity: 4
+I Cache Block Size: 4 Bytes
+
+
+D Cache Size: 16 KB
+D Cache Associativity: 4
+D Cache Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 333335956
+I-cache accesses 93672795 and misses 553
+D-cache Read accesses 29411338 and misses 7541946
+D-cache Write accesses 6673647 and misses 1204790
+
+I-cache miss rate = 0.000006
+D-cache miss rate: 0.242393
+
+
+*************************************************
+
+
+
+cache_config.txt values used:
+
+16    I Cache Size
+4     I Cache Assoc.
+4     I Cache Block Size
+16    D Cache Size
+4     D Cache Assoc.
+256   D Cache Block Size
+20    Memory Access Cycles
+
+
+Running with these sizes, and referencing the table from before, we see that
+overall miss rates are on the lower end of the spectrum, as well as execution
+time in cycles. I picked values on the spreadsheets where the sizes corresponded
+to a miss rate that was significantly lower than other options, on both tables.
+
+For example, most I Cache miss rate values are insignificant, so for long trace 1,
+choosing a 128KB cache size over a 16KB cache size with 16 Byte blocks only
+gives us an extra 1E-04% chance to hit... the value is already pretty insignificant
+to miss, so it would be wasteful to use a cache size that is 8x larger.

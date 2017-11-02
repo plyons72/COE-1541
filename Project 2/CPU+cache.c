@@ -126,9 +126,13 @@ int main(int argc, char **argv)
         exit(0);
     }
 
-    printf("\nCache Size: %d KB", I_size);
-    printf("\nAssociativity: %d", I_assoc);
-    printf("\nBlock Size: %d Bytes\n\n", I_bsize);
+    printf("\nI Cache Size: %d KB", I_size);
+    printf("\nI Cache Associativity: %d", I_assoc);
+    printf("\nI Cache Block Size: %d Bytes\n\n", I_bsize);
+
+    printf("\nD Cache Size: %d KB", D_size);
+    printf("\nD Cache Associativity: %d", D_assoc);
+    printf("\nD Cache Block Size: %d Bytes\n\n", D_bsize);
 
     trace_init(); //initialize the trace
     struct cache_t *I_cache, *D_cache;
