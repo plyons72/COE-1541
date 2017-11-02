@@ -1,0 +1,116 @@
+Patrick Lyons and Noah Perryman
+
+Experiment 3 output (Project 2)
+
+Output from the large trace files, only changing the associativity (1, 4, 8)
+while maintaining 32KB cache sizes and 32 Byte block sizes
+
+
+** opening file sample_large1.tr
+
+I Cache Size: 32 KB
+I Cache Associativity: 1
+I Cache Block Size: 32 Bytes
+
+
+D Cache Size: 32 KB
+D Cache Associativity: 1
+D Cache Block Size: 32 Bytes
+
++ Simulation terminates at cycle : 250970919
+I-cache accesses 93672795 and misses 581
+D-cache Read accesses 20813032 and misses 4889805
+D-cache Write accesses 9625833 and misses 736650
+
+
+*************************************************
+** opening file sample_large2.tr
+
+I Cache Size: 32 KB
+I Cache Associativity: 1
+I Cache Block Size: 32 Bytes
+
+
+D Cache Size: 32 KB
+D Cache Associativity: 1
+D Cache Block Size: 32 Bytes
+
++ Simulation terminates at cycle : 582774996
+I-cache accesses 93672795 and misses 77
+D-cache Read accesses 29411338 and misses 12990504
+D-cache Write accesses 6673647 and misses 4905383
+
+
+*************************************************
+** opening file sample_large1.tr
+
+I Cache Size: 32 KB
+I Cache Associativity: 4
+I Cache Block Size: 32 Bytes
+
+
+D Cache Size: 32 KB
+D Cache Associativity: 4
+D Cache Block Size: 32 Bytes
+
++ Simulation terminates at cycle : 217412819
+I-cache accesses 93672795 and misses 240
+D-cache Read accesses 20813032 and misses 4229772
+D-cache Write accesses 9625833 and misses 226904
+
+
+*************************************************
+** opening file sample_large2.tr
+
+I Cache Size: 32 KB
+I Cache Associativity: 4
+I Cache Block Size: 32 Bytes
+
+
+D Cache Size: 32 KB
+D Cache Associativity: 4
+D Cache Block Size: 32 Bytes
+
++ Simulation terminates at cycle : 581689576
+I-cache accesses 93672795 and misses 77
+D-cache Read accesses 29411338 and misses 12953569
+D-cache Write accesses 6673647 and misses 4895325
+
+
+*************************************************
+** opening file sample_large1.tr
+
+I Cache Size: 32 KB
+I Cache Associativity: 8
+I Cache Block Size: 32 Bytes
+
+
+D Cache Size: 32 KB
+D Cache Associativity: 8
+D Cache Block Size: 32 Bytes
+
++ Simulation terminates at cycle : 216103359
+I-cache accesses 93672795 and misses 240
+D-cache Read accesses 20813032 and misses 4183798
+D-cache Write accesses 9625833 and misses 217309
+
+
+*************************************************
+** opening file sample_large2.tr
+
+I Cache Size: 32 KB
+I Cache Associativity: 8
+I Cache Block Size: 32 Bytes
+
+
+D Cache Size: 32 KB
+D Cache Associativity: 8
+D Cache Block Size: 32 Bytes
+
++ Simulation terminates at cycle : 581531836
+I-cache accesses 93672795 and misses 77
+D-cache Read accesses 29411338 and misses 12951133
+D-cache Write accesses 6673647 and misses 4892117
+
+
+*************************************************

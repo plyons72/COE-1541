@@ -168,10 +168,13 @@ int main(int argc, char **argv)
             printf("I-cache accesses %u and misses %u\n", I_accesses, I_misses);
             printf("D-cache Read accesses %u and misses %u\n", D_read_accesses, D_read_misses);
             printf("D-cache Write accesses %u and misses %u\n", D_write_accesses, D_write_misses);
+
+            //Just a separator to make output look nicer in the .txt files
             printf("\n\n*************************************************");
 
-            printf("\n\nI-cache miss rate = %.6f\n", (float)((float)I_misses/(float)I_accesses));
-            printf("D-cache miss rate: %.6f\n", (float)(((float)D_read_misses+D_write_misses)/((float)D_read_accesses+D_write_accesses)));
+            //Printf statements only used to print output to make calculations a bit easier
+            //printf("\n\nI-cache miss rate = %.6f\n", (float)((float)I_misses/(float)I_accesses));
+            //printf("D-cache miss rate: %.6f\n", (float)(((float)D_read_misses+D_write_misses)/((float)D_read_accesses+D_write_accesses)));
             /*printf("I-cache Miss Rate (percent): %.3f\n", (float)((float)I_misses/(float)I_accesses)*100.0);
             printf("D-cache Read Miss Rate (percent): %.3f\n", (float)((float)D_read_misses/(float)D_read_accesses)*100.0);
             printf("D-cache Write Miss Rate (percent): %.3f\n", (float)((float)D_write_misses/(float)D_write_accesses)*100.0);

@@ -1,3 +1,10 @@
+Patrick Lyons and Noah Perryman
+
+Experiment 1 output (Project 2)
+
+Please note that the Cache size, Block Size, and Associativity values apply
+to both I and D caches as per instructions for the first experiment.
+
 ** opening file sample_large1.tr
 
 Cache Size: 1 KB

@@ -1,3 +1,11 @@
+Patrick Lyons and Noah Perryman
+
+Experiment 2 output (Project 2)
+
+Output from large trace files using our own Cache/Block sizes based on
+experiment 1 results, keeping associativity as 4.
+
+
 ** opening file sample_large1.tr
 
 I Cache Size: 16 KB
