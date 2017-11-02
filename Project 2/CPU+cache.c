@@ -39,7 +39,7 @@ unsigned int D_write_misses = 0;
 
 int main(int argc, char **argv)
 {
-    
+
     size_t size;
     char *trace_file_name;
     char *cache_config_name;
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     int trace_view_on = 0; //Cycle output printed to screen on or off. 0 for off, 1 for on
     static FILE *cache_config_trace;
     int stall = 0;
-    
+
     //values for trace item
     unsigned char t_type = 0;
     unsigned char t_sReg_a= 0;
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     unsigned char t_dReg= 0;
     unsigned int t_PC = 0;
     unsigned int t_Addr = 0;
-    
+
     //initial values for cache parameters before taking input
     unsigned int I_size = 16;
     unsigned int I_assoc = 4;
@@ -64,25 +64,25 @@ int main(int argc, char **argv)
     unsigned int D_assoc = 4;
     unsigned int D_bsize = 8;
     unsigned int mem_latency = 20;
-    
+
     int k;
     for(k = 0; k < 5; k++) {
         insert_NOP(k);
     }
-    
+
     unsigned int cycle_number = 0;
-    
+
     if (argc == 1) { //If the input does not include the filename there is nothing to trace (i.e. no input), so exit
         fprintf(stdout, "\nUSAGE: tv <trace_file> <switch - any character>\n");
         fprintf(stdout, "\n(switch) to turn on or off individual item view.\n\n");
         exit(0);
     }
-    
+
     if (argc != 5 && argc != 4) {
         fprintf(stdout, "\nWrong input arguments\n\n");
         exit(0);
     }
-    
+
     //Get file inputs
     trace_file_name = argv[1];
     prediction_method = atoi(argv[2]);
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     }else {
         cache_config_name = "cache_config.txt";
     }
-    
+
     //open file
     cache_config_trace = fopen(cache_config_name, "rb");
     if (!cache_config_trace) { //if file fopen() returns an error, exit
@@ -108,32 +108,37 @@ int main(int argc, char **argv)
     fscanf(cache_config_trace, "%d", &D_bsize);
     fscanf(cache_config_trace, "%d", &mem_latency);
     fclose(cache_config_trace);
-    
+
     //printf("%d\n%d\n%d\n%d\n%d\n%d\n%d\n",I_size,I_assoc,I_bsize,D_size,D_assoc,D_bsize,mem_latency);
-    
+
     if (prediction_method < 0 || prediction_method > 1 || trace_view_on < 0 || trace_view_on > 1) {
             fprintf(stdout, "\nInvalid input arguments\n\n");
             exit(0);
     }
-    
+
     fprintf(stdout, "\n ** opening file %s\n", trace_file_name);
-    
+
+
     trace_fd = fopen(trace_file_name, "rb"); //open file to be read
-    
+
     if (!trace_fd) { //if file fopen() returns an error, exit
         fprintf(stdout, "\ntrace file %s not opened.\n\n", trace_file_name);
         exit(0);
     }
-    
+
+    printf("\nCache Size: %d KB", I_size);
+    printf("\nAssociativity: %d", I_assoc);
+    printf("\nBlock Size: %d Bytes\n\n", I_bsize);
+
     trace_init(); //initialize the trace
     struct cache_t *I_cache, *D_cache;
     I_cache = cache_create(I_size, I_bsize, I_assoc, mem_latency);
     D_cache = cache_create(D_size, D_bsize, D_assoc, mem_latency);
-    
+
     for (k = 0; k < 64; k++) {
         branch_predictor[k] = 0;
     }
-    
+
     while(1) { //Execute the trace program{
         if(read_next == 1 && branch_op == 0) {
             size = trace_get_item(&item); //get size of the trace program as well as the trace_item field
@@ -151,27 +156,31 @@ int main(int argc, char **argv)
                     print_pipeline_output(cycle_number, 1);
                 }
             }
-            
+
         }
-        
+
         if (!size && !checkPipeline()) {       /* no more instructions (trace_items) to simulate */
             printf("+ Simulation terminates at cycle : %u\n", cycle_number);
             printf("I-cache accesses %u and misses %u\n", I_accesses, I_misses);
             printf("D-cache Read accesses %u and misses %u\n", D_read_accesses, D_read_misses);
             printf("D-cache Write accesses %u and misses %u\n", D_write_accesses, D_write_misses);
+            printf("\n\n*************************************************");
+
+            printf("\n\nI-cache miss rate = %.6f\n", (float)((float)I_misses/(float)I_accesses));
+            printf("D-cache miss rate: %.6f\n", (float)(((float)D_read_misses+D_write_misses)/((float)D_read_accesses+D_write_accesses)));
             /*printf("I-cache Miss Rate (percent): %.3f\n", (float)((float)I_misses/(float)I_accesses)*100.0);
             printf("D-cache Read Miss Rate (percent): %.3f\n", (float)((float)D_read_misses/(float)D_read_accesses)*100.0);
             printf("D-cache Write Miss Rate (percent): %.3f\n", (float)((float)D_write_misses/(float)D_write_accesses)*100.0);
             printf("D-cache: %.3f\n", (float)(((float)D_read_misses+D_write_misses)/((float)D_read_accesses+D_write_accesses))*100.0);
             printf("Overal Miss Rate (percent): %.3f\n", (float)(((float)I_misses+D_read_misses+D_write_misses)/((float)I_accesses+D_read_accesses+D_write_accesses))*100.0);*/
-            
-            
+
+
             break ;
         }
         else{              /* parse the next instruction to simulate */
             cycle_number++;
             shift();
- 
+
             /*Before checking pipeline for hazards, insert code for data cache here in MEM stage
             If load/store to data cache misses, stall entire pipeline for stall_cycles*/
             if (tr_pipeline[4].type == ti_LOAD || tr_pipeline[4].type == ti_STORE) {
@@ -189,35 +198,35 @@ int main(int argc, char **argv)
                         D_write_misses++;
                     }
                 }
-                
+
              for (k = 0; k < stall_cycle; k++) {
                      cycle_number++;
                      if (trace_view_on == 1) {
                          print_pipeline_output(cycle_number, 1);
                      }
-             
+
                  }
             }
-            
+
             if (check_data_hazard()) {
-                
+
                 insert_NOP(0);
                 read_next = 0;
-                
+
             }else if ((branch_op == 0) && (tr_pipeline[1].type == ti_BRANCH)) { //see if branch or jump first
-                
+
                 if(prediction_method == 1) {
                     if (predict_branch(tr_pipeline[1].PC) != 0) {
                         if (predict_branch(tr_pipeline[1].PC) != item->PC) {
-                            
+
                             int index = tr_pipeline[1].PC;
                             index = index >> 4;
                             index = index & 511;
                             branch_predictor[index] = 0; //update branch if incorrect branch
-                            
+
                             insert_squashed(0);
                             branch_op++;
-                            
+
                         }else {
                             read_next = 1;
                             if (!size) { //insert into pipeline
@@ -226,19 +235,19 @@ int main(int argc, char **argv)
                                 tr_pipeline[0] = *item;
                             }
                         }
-                        
+
                     }else {
-                        
+
                         if (item->PC != (tr_pipeline[1].PC + 4)) {
-                            
+
                             int index = tr_pipeline[1].PC;
                             index = index >> 4;
                             index = index & 511;
                             branch_predictor[index] = tr_pipeline[1].Addr; //update branch if taken and there was no prediction
-                            
+
                             insert_squashed(0);
                             branch_op++;
-                            
+
                         }else {
                             read_next = 1;
                             if (!size) { //insert into pipeline
@@ -248,9 +257,9 @@ int main(int argc, char **argv)
                             }
                         }
                     }
-                    
+
                 }else{
-                    
+
                     if (item->PC != (tr_pipeline[1].PC + 4)) {
                         insert_squashed(0);
                         branch_op++;
@@ -262,20 +271,20 @@ int main(int argc, char **argv)
                             tr_pipeline[0] = *item;
                         }
                     }
-                    
+
                 }
-    
+
               }else if (branch_op != 0) {
-                  
+
                   branch_op++;
                   insert_squashed(0);
-                  
+
                   if (branch_op == 2) {
                       branch_op = 0;
                   }
-                  
+
                   read_next = 0;
-                  
+
               }else {
                 read_next = 1;
                 if (!size) { //insert into pipeline
@@ -285,28 +294,28 @@ int main(int argc, char **argv)
                 }
             }
         }
-        
+
         // SIMULATION OF A Pipelined CPU
-        
+
         //cycle_number = cycle_number + cache_access(I_cache, item->PC, 0); /* simulate instruction fetch */
         // update I_access and I_misses
-        
+
         //prints what left the pipeline
         if (trace_view_on == 1) {
             print_pipeline_output(cycle_number, 0);
         }
-        
+
     }
-    
+
     trace_uninit(); //uninitialize the trace and exit
-    
+
     exit(0);
 }
 
 int checkPipeline() {
-    
+
     int x = 0;
-    
+
     int j;
     for(j = 0; j < 5; j++) {
         switch((tr_pipeline)[j].type) {
@@ -314,21 +323,21 @@ int checkPipeline() {
                 x++;
                 break;
         }
-        
+
     }
-    
+
     if (x == 5) {
-        
+
         return 0;
-        
+
     }
-    
+
     return 1;
-    
+
 }
 
 void insert_NOP(int stage) {
-    
+
     // Init a new no-op to insert in the pipeline
     struct trace_item no_op;
     no_op.type = 0;
@@ -339,23 +348,23 @@ void insert_NOP(int stage) {
     no_op.Addr = 0;
     tr_pipeline[stage] = no_op;
     return;
-    
-    
+
+
 }
 
 void shift() {
-    
+
     int j;
     for(j = 5; j >= 0; j--) {
         (tr_pipeline)[j] = (tr_pipeline)[j-1];
     }
-    
+
     // for(j = 1; j < 5; j++) {
     //     (tr_pipeline)[j] = (tr_pipeline)[j+1];
     // }
-    
+
     return;
-    
+
 }
 
 /*
@@ -364,7 +373,7 @@ void shift() {
  that follows it by changing the source of the next instruction.
  */
 int check_data_hazard(){
-    
+
     /*
      If the next instruction is an R-Type instruction and the current is a load
      instruction, where the source of the next = the destination of the current,
@@ -378,7 +387,7 @@ int check_data_hazard(){
          */
         else if (item->sReg_b == (tr_pipeline)[1].dReg) {return 1;}
     }
-    
+
     /*
      If the next instruction is an I-Type and the current instruction is a load
      instruction, AND the source register of the I-Type is the destination
@@ -387,7 +396,7 @@ int check_data_hazard(){
     else if (item->type == 2 && (tr_pipeline)[1].type == 3) {
         if (item->sReg_a == (tr_pipeline)[1].dReg) {return 1;}
     }
-    
+
     /*
      A store instruction follows a load instruction, where the source relies
      on the previous destination.
@@ -395,7 +404,7 @@ int check_data_hazard(){
     else if (item->type == 4 && (tr_pipeline)[1].type == 3) {
         if (item->sReg_a == (tr_pipeline)[1].dReg) {return 1;}
     }
-    
+
     /*
      A branch instruction follows a load instruction where the branch relies on
      the value of the load word destination
@@ -404,19 +413,19 @@ int check_data_hazard(){
         if (item->sReg_a == (tr_pipeline)[1].dReg) {return 1;}
         else if (item->sReg_b == (tr_pipeline)[1].dReg) {return 1;}
     }
-    
+
     /*
      If none of these cases are met, there is no data hazard. Return 0 so that
      no stall takes place
      */
     else {return 0;}
-    
+
     //Fallthrough case shouldn't be reached
     return 0;
 }
 
 void insert_squashed(int k){
-    
+
     // Init a new squashed instruction to insert in the pipeline
     struct trace_item squashed_inst;
     squashed_inst.type = 0;
@@ -427,7 +436,7 @@ void insert_squashed(int k){
     squashed_inst.Addr = -1;
 
     tr_pipeline[k] = squashed_inst;
-    
+
     return;
 }
 
@@ -439,7 +448,7 @@ int predict_branch(int PC) {
 }
 
 void print_pipeline_output(int cycle_number, int stalled) {
-    
+
     if (stalled == 1) {
         printf("[cycle %d] Pipeline Stalled Due to Cache Miss\n",cycle_number);
     }else {

@@ -1,0 +1,312 @@
+** opening file sample_large1.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 4 Bytes
+
++ Simulation terminates at cycle : 388618939
+I-cache accesses 93672795 and misses 434006
+D-cache Read accesses 20813032 and misses 9098182
+D-cache Write accesses 9625833 and misses 1861519
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 4 Bytes
+
++ Simulation terminates at cycle : 698474476
+I-cache accesses 93672795 and misses 647670
+D-cache Read accesses 29411338 and misses 16166440
+D-cache Write accesses 6673647 and misses 5813094
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 4 Bytes
+
++ Simulation terminates at cycle : 310695859
+I-cache accesses 93672795 and misses 1667
+D-cache Read accesses 20813032 and misses 6429941
+D-cache Write accesses 9625833 and misses 1452039
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 4 Bytes
+
++ Simulation terminates at cycle : 617564196
+I-cache accesses 93672795 and misses 553
+D-cache Read accesses 29411338 and misses 14047038
+D-cache Write accesses 6673647 and misses 5234025
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 4 Bytes
+
++ Simulation terminates at cycle : 258918239
+I-cache accesses 93672795 and misses 1667
+D-cache Read accesses 20813032 and misses 4503870
+D-cache Write accesses 9625833 and misses 1042402
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 4 Bytes
+
++ Simulation terminates at cycle : 556906036
+I-cache accesses 93672795 and misses 553
+D-cache Read accesses 29411338 and misses 12055167
+D-cache Write accesses 6673647 and misses 4746230
+
+
+*************************************************
+ ** opening file sample_large1.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 16 Bytes
+
++ Simulation terminates at cycle : 369379879
+I-cache accesses 93672795 and misses 1588401
+D-cache Read accesses 20813032 and misses 8288361
+D-cache Write accesses 9625833 and misses 1194091
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 16 Bytes
+
++ Simulation terminates at cycle : 656474816
+I-cache accesses 93672795 and misses 182980
+D-cache Read accesses 29411338 and misses 15708553
+D-cache Write accesses 6673647 and misses 5274571
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 16 Bytes
+
++ Simulation terminates at cycle : 243123459
+I-cache accesses 93672795 and misses 516
+D-cache Read accesses 20813032 and misses 5058421
+D-cache Write accesses 9625833 and misses 449992
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 16 Bytes
+
++ Simulation terminates at cycle : 616786096
+I-cache accesses 93672795 and misses 147
+D-cache Read accesses 29411338 and misses 14312365
+D-cache Write accesses 6673647 and misses 5089630
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 16 Bytes
+
++ Simulation terminates at cycle : 193117839
+I-cache accesses 93672795 and misses 450
+D-cache Read accesses 20813032 and misses 2990192
+D-cache Write accesses 9625833 and misses 250792
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 16 Bytes
+
++ Simulation terminates at cycle : 560556016
+I-cache accesses 93672795 and misses 147
+D-cache Read accesses 29411338 and misses 12325041
+D-cache Write accesses 6673647 and misses 4703908
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 64 Bytes
+
++ Simulation terminates at cycle : 536131959
+I-cache accesses 93672795 and misses 2846523
+D-cache Read accesses 20813032 and misses 11814599
+D-cache Write accesses 9625833 and misses 2965060
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 64 Bytes
+
++ Simulation terminates at cycle : 616866096
+I-cache accesses 93672795 and misses 53908
+D-cache Read accesses 29411338 and misses 15072626
+D-cache Write accesses 6673647 and misses 4359240
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 64 Bytes
+
++ Simulation terminates at cycle : 226270499
+I-cache accesses 93672795 and misses 220
+D-cache Read accesses 20813032 and misses 4684052
+D-cache Write accesses 9625833 and misses 219047
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 64 Bytes
+
++ Simulation terminates at cycle : 544790336
+I-cache accesses 93672795 and misses 42
+D-cache Read accesses 29411338 and misses 12178422
+D-cache Write accesses 6673647 and misses 4053378
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 64 Bytes
+
++ Simulation terminates at cycle : 173343059
+I-cache accesses 93672795 and misses 130
+D-cache Read accesses 20813032 and misses 2447264
+D-cache Write accesses 9625833 and misses 79583
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 64 Bytes
+
++ Simulation terminates at cycle : 517439756
+I-cache accesses 93672795 and misses 42
+D-cache Read accesses 29411338 and misses 11287362
+D-cache Write accesses 6673647 and misses 3820954
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 703946259
+I-cache accesses 93672795 and misses 3096018
+D-cache Read accesses 20813032 and misses 15110671
+D-cache Write accesses 9625833 and misses 5332761
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 1 KB
+Associativity: 4
+Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 560097536
+I-cache accesses 93672795 and misses 19873
+D-cache Read accesses 29411338 and misses 17164529
+D-cache Write accesses 6673647 and misses 1616948
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 233325679
+I-cache accesses 93672795 and misses 87
+D-cache Read accesses 20813032 and misses 4879923
+D-cache Write accesses 9625833 and misses 296516
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 16 KB
+Associativity: 4
+Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 333325156
+I-cache accesses 93672795 and misses 13
+D-cache Read accesses 29411338 and misses 7541946
+D-cache Write accesses 6673647 and misses 1204790
+
+
+*************************************************
+** opening file sample_large1.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 168489059
+I-cache accesses 93672795 and misses 42
+D-cache Read accesses 20813032 and misses 2310445
+D-cache Write accesses 9625833 and misses 41084
+
+
+*************************************************
+** opening file sample_large2.tr
+
+Cache Size: 128 KB
+Associativity: 4
+Block Size: 256 Bytes
+
++ Simulation terminates at cycle : 311885856
+I-cache accesses 93672795 and misses 13
+D-cache Read accesses 29411338 and misses 6909382
+D-cache Write accesses 6673647 and misses 975450
+
+
+*************************************************
